@@ -23,13 +23,15 @@
 product(N) ->
   product(N, 1).
 
-product([], Acc) ->
-  Acc;
+product([X|[]], Acc) ->
+  X * Acc;
 product([X|Xs], Acc) ->
   product(Xs, X * Acc).
 
 product_test() ->
-  ?assertEqual(24, product([2, 3, 4])).
+  ?assertEqual(24, product([2, 3, 4])),
+  ?assertEqual(2, product([2])),
+  ?assertException(error, function_clause, product([])).
 
 % Combining list elements: the maximum of a list
 %
