@@ -129,12 +129,18 @@ perf() ->
   % $ wc -m iliad.mb.txt
   % 808298 iliad.mb.txt
   %
+  Repeat = 10,
   {ok, Data} = file:read_file("iliad.mb.txt"),
   Iliad = binary_to_list(Data),
-  {Take_t, _} = timer:tc(take, take_t, [800000, Iliad]),
-  % It takes too long.
-  % {Take_t2, _} = timer:tc(take, take_t2, [800000, Iliad]),
-  {Take_d, _} = timer:tc(take, take_d, [800000, Iliad]),
-  {Take_d2, _} = timer:tc(take, take_d2, [800000, Iliad]),
+  perf(Repeat, 0, Iliad, {{take_t, 0}, {take_d, 0}, {take_d2, 0}}).
 
-  {ok, [{take_t, Take_t}, {take_d, Take_d}, {take_d2, Take_d2}]}.
+perf(Limit, Limit, _, {{take_t, T1}, {take_d, T2}, {take_d2, T3}}) ->
+  lists:sort([{take_t, T1/Limit}, {take_d, T2/Limit}, {take_d2, T3/Limit}]);
+perf(Limit, Count, Data, {{take_t, T1}, {take_d, T2}, {take_d2, T3}}) ->
+  {Take_t, _} = timer:tc(take, take_t, [800000, Data]),
+  % It takes too long.
+  % {Take_t2, _} = timer:tc(take, take_t2, [800000, Data]),
+  {Take_d, _} = timer:tc(take, take_d, [800000, Data]),
+  {Take_d2, _} = timer:tc(take, take_d2, [800000, Data]),
+
+  perf(Limit, Count + 1, Data, {{take_t, T1 + Take_t}, {take_d, T2 + Take_d}, {take_d2, T3 + Take_d2}}).
