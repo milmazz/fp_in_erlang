@@ -12,10 +12,11 @@
 
 -spec palindrome(string()) -> boolean().
 palindrome(X) ->
-  Y = re:replace(string:to_lower(X), "[\s']", "", [global,{return,list}]),
+  Y = re:replace(string:to_lower(X), "[^[:alnum:]]", "", [global,{return,list}]),
   string:equal(Y, lists:reverse(Y)).
 
 palidrome_test() ->
   ?assertEqual(true, palindrome("Madam I\'m Adam")),
+  ?assertEqual(true, palindrome("árrá")),
   ?assertEqual(false, palindrome("Arepa")).
 
