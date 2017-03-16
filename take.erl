@@ -24,14 +24,14 @@ take_t(_, []) ->
 take_t(0, [_X|_Xs]) ->
   [];
 take_t(N, [X|Xs]) when is_integer(N), N > 0 ->
-  take_t(N, Xs, 1, [X]).
+  take_t(N - 1, Xs, [X]).
 
-take_t(_N, [], _Acc, Res) ->
+take_t(_N, [], Res) ->
   lists:reverse(Res);
-take_t(N, [_X|_Xs], Acc, Res) when Acc >= N ->
+take_t(0, [_X|_Xs], Res) ->
   lists:reverse(Res);
-take_t(N, [X|Xs], Acc, Res) ->
-  take_t(N, Xs, Acc + 1, [X|Res]).
+take_t(N, [X|Xs], Res) ->
+  take_t(N - 1, Xs, [X|Res]).
 
 take_t_test() ->
   ?assertEqual([], take_t(15, [])),
@@ -54,14 +54,14 @@ take_t2(_, []) ->
 take_t2(0, [_X|_Xs]) ->
   [];
 take_t2(N, [X|Xs]) when is_integer(N), N > 0 ->
-  take_t2(N, Xs, 1, [X]).
+  take_t2(N - 1, Xs, [X]).
 
-take_t2(_N, [], _Acc, Res) ->
+take_t2(_N, [], Res) ->
   Res;
-take_t2(N, [_X|_Xs], Acc, Res) when Acc >= N ->
+take_t2(0, [_X|_Xs], Res) ->
   Res;
-take_t2(N, [X|Xs], Acc, Res) ->
-  take_t2(N, Xs, Acc + 1, Res ++ [X]).
+take_t2(N, [X|Xs], Res) ->
+  take_t2(N - 1, Xs, Res ++ [X]).
 
 take_t2_test() ->
   ?assertEqual([], take_t2(15, [])),
@@ -86,14 +86,7 @@ take_d(_, []) ->
 take_d(0, [_X|_Xs]) ->
   [];
 take_d(N, [X|Xs]) when is_integer(N), N > 0 ->
-  [X | take_d(N, Xs, 1)].
-
-take_d(_N, [], _Acc) ->
-  [];
-take_d(N, [_X|_Xs], Acc) when Acc >= N ->
-  [];
-take_d(N, [X|Xs], Acc) ->
-  [X | take_d(N, Xs, Acc + 1)].
+  [X | take_d(N - 1, Xs)].
 
 take_d_test() ->
   ?assertEqual([], take_d(15, [])),
@@ -108,14 +101,7 @@ take_d2(_, []) ->
 take_d2(0, [_X|_Xs]) ->
   [];
 take_d2(N, [X|Xs]) when is_integer(N), N > 0 ->
-  [X] ++ take_d2(N, Xs, 1).
-
-take_d2(_N, [], _Acc) ->
-  [];
-take_d2(N, [_X|_Xs], Acc) when Acc >= N ->
-  [];
-take_d2(N, [X|Xs], Acc) ->
-  [X] ++ take_d2(N, Xs, Acc + 1).
+  [X] ++ take_d2(N - 1, Xs).
 
 take_d2_test() ->
   ?assertEqual([], take_d2(15, [])),
