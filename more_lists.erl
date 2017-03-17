@@ -1,4 +1,6 @@
 -module(more_lists).
+-export([join/2, concat/1, member/2, halve/1, shunt/2]).
+-include_lib("eunit/include/eunit.hrl").
 
 %%%%%%%%
 % 2.18 %
@@ -20,18 +22,82 @@
 % Hint: Think about how you could use join (or ++) in the definition of concat.
 %
 
+% Step-by-step evaluation
+%
+% join([1, 2], [3, 4])
+% [1|join([2], [3, 4])]
+% [1|[2|join([], [3, 4])]]
+% [1|[2|[3,4]]]
+% [1,2,3,4]
+%
+-spec join(list(), list()) -> list().
+join([], []) ->
+  [];
+join([], [_X|_Xs] = R) ->
+  R;
+join([_X|_Xs] = L, []) ->
+  L;
+join([X|Xs], R) ->
+  [X|join(Xs, R)].
 
+join_test() ->
+  ?assertEqual([], join([], [])),
+  ?assertEqual([1, 2, 3], join([1, 2, 3], [])),
+  ?assertEqual([4, 5], join([], [4, 5])),
+  ?assertEqual("hello", join("he", "llo")),
+  ?assertEqual([1, 2, 3, 4, 5], join([1, 2, 3], [4, 5])).
 
+% Step-by-step evaluation
+%
+% concat(["goo","d","","by","e"])
+% concat([join("goo", "d") | Rest])
+% concat(["good" | Rest])
+% concat([join("good", "") | Rest])
+% concat(["good" | Rest])
+% concat([join("good", "by") | Rest])
+% concat(["goodby"|["e"|[]])
+% concat([join("goodby", "e") | []])
+% concat(["goodbye"|[]])
+% "goodbye"
+%
+-spec concat(list()) -> list().
+concat([]) ->
+  [];
+concat([X|[]]) ->
+  X;
+concat([X|[Y|Zs]]) ->
+  concat([join(X, Y)|Zs]).
+
+concat_test() ->
+  ?assertEqual([1], concat([[1]])),
+  ?assertEqual([], concat([])),
+  ?assertEqual([1,2,3,4,5,6,7,8,9], concat([[1, 2, 3], [4, 5], [6], [7, 8, 9]])),
+  ?assertEqual("goodbye", concat(["goo","d","","by","e"])).
 
 % Testing membership
 %
 % Define a function member/2 that tests whether its first argument is a member
 % of its second argument, which is a list. For example:
 %
-% member(2,[2,0,0,1]) = true
-% member(20,[2,0,0,1]) = false
+% Step-by-step evaluation
 %
+% member(0,[2,0,0,1])
+% member(0, [2|[0,0,1]])
+% member(0, [0, 0, 1])
+% true
+%
+-spec member(term(), list()) -> boolean().
+member(_N, []) ->
+  false;
+member(_X, [_X|_Xs]) ->
+  true;
+member(N, [_X|Xs]) ->
+  member(N, Xs).
 
+member_test() ->
+  ?assertEqual(false, member(5, [])),
+  ?assertEqual(true, member(2,[2,0,0,1])),
+  ?assertEqual(false, member(20,[2,0,0,1])).
 
 % Sorting lists
 %
@@ -50,7 +116,21 @@
 %
 % Try to implement each of these sorting algorithms in Erlang.
 
+halve([]) ->
+  [];
+halve(L) ->
+  halve(L, L).
 
+halve([_H|_T], []) ->
+  [];
+halve([_H|_T], [_X|[]]) ->
+  [];
+halve([H|T], [_X|[_Y|Zs]]) ->
+  [H|halve(T, Zs)].
+
+halve_test() ->
+  ?assertEqual([1, 2, 3], halve([1, 2, 3, 4, 5, 6])),
+  ?assertEqual([1, 2, 3], halve([1, 2, 3, 4, 5, 6, 7])).
 
 % Permutations
 % A permutation of a list xs consists of the same elements in a (potentially)
@@ -60,6 +140,16 @@
 % perms([]) = [[]]
 % perms([1,2,3]) = [[1,2,3],[2,3,1],[3,1,2],[2,1,3],[1,3,2],[3,2,1]]
 %
-% Remember that you can use the comments on this step to ask questions about
-% these exercises, to get some help if you would like some, or to discuss your
-% different strategies for solving them.
+
+
+%%%%%%%%%%%
+% Helpers %
+%%%%%%%%%%%
+shunt([], Acc) ->
+  Acc;
+shunt([X|Xs], Acc) ->
+  shunt(Xs, [X|Acc]).
+
+shunt_test() ->
+  ?assertEqual([1, 2, 3], shunt([3, 2, 1], [])),
+  ?assertEqual([1, 2, 3, 4, 5], shunt([3, 2, 1], [4, 5])).
