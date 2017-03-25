@@ -1,5 +1,5 @@
 -module(more_lists).
--export([join/2, concat/1, member/2, halve/1, shunt/2]).
+-export([join/2, concat/1, member/2, halve/1, shunt/2, merge/2, mergeSort/1]).
 -include_lib("eunit/include/eunit.hrl").
 
 %%%%%%%%
@@ -116,21 +116,68 @@ member_test() ->
 %
 % Try to implement each of these sorting algorithms in Erlang.
 
+% mergeSort([4, 3, 7])
+% merge(mergeSort([4]), mergeSort([3, 7]))
+% merge(merge(mergeSort([]), mergeSort([4])),merge(mergeSort([3]), mergeSort([7])))
+% merge(merge([], [4]), merge([3], [7]))
+% merge([4], [3, 7])
+% [3, 4, 7]
+
+% mergeSort([23,4,42,15,16,8,3])
+% merge(mergeSort([23,4,42]), mergeSort([15,16,8,3]))
+% merge(merge(mergeSort([23]), mergeSort([4,42])), merge(mergeSort([15,16]), mergeSort([8,3])))
+% merge(merge([23], mergeSort([4,42])), merge(mergeSort([15,16]), mergeSort([8,3])))
+% merge(merge([23], merge(mergeSort([4]), mergeSort([42]))), merge(merge(mergeSort([15]),mergeSort([16])), merge(mergeSort([8]),mergeSort([3]))))
+% merge(merge([23], merge([4], [42])), merge(merge([15],[16]), merge([8],[3])))
+% merge(merge([23], [4, 42]), merge([15, 16], [3, 8]))
+% merge([4, 23, 42], [3, 8, 15, 16])
+% [3, 4, 8, 15, 16, 23, 42]
+
+
+mergeSort([]) ->
+  [];
+mergeSort([X|[]]) ->
+  [X];
+mergeSort(L) ->
+  {Left, Right} = halve(L),
+  merge(mergeSort(Left), mergeSort(Right)).
+
+mergeSort_test() ->
+  ?assertEqual([3, 4, 7], mergeSort([4, 3, 7])).
+  % ?assertEqual([3,4,8,15,16,23,42], mergeSort([23,4,42,15,16,8,3])).
+
+merge([], []) ->
+  [];
+merge([], R) ->
+  R;
+merge([L], [R]) when L =< R ->
+  [L, R];
+merge([L], [R]) ->
+  [R, L];
+merge([L], [H|_T] = R) when L =< H ->
+  [L|R];
+merge([L], [H|T]) when L =< T ->
+  [H|[L|T]];
+merge([L], [H|T]) ->
+  [H|[T|L]].
+
+
+% Divide the list into two halves of (approximately) equal length
 halve([]) ->
   [];
 halve(L) ->
-  halve(L, L).
+  halve(L, L, []).
 
-halve([_H|_T], []) ->
-  [];
-halve([_H|_T], [_X|[]]) ->
-  [];
-halve([H|T], [_X|[_Y|Zs]]) ->
-  [H|halve(T, Zs)].
+halve(R, [], L) ->
+  {shunt(L, []), R};
+halve(R, [_|[]], L) ->
+  {shunt(L, []), R};
+halve([H|T], [_X|[_Y|Zs]], L) ->
+  halve(T, Zs, [H|L]).
 
 halve_test() ->
-  ?assertEqual([1, 2, 3], halve([1, 2, 3, 4, 5, 6])),
-  ?assertEqual([1, 2, 3], halve([1, 2, 3, 4, 5, 6, 7])).
+  ?assertEqual({[1, 2, 3], [4, 5, 6]}, halve([1, 2, 3, 4, 5, 6])),
+  ?assertEqual({[1, 2, 3], [4, 5, 6, 7]}, halve([1, 2, 3, 4, 5, 6, 7])).
 
 % Permutations
 % A permutation of a list xs consists of the same elements in a (potentially)
